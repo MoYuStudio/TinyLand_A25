@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://dpv43r7vnise1"]
+
+[ext_resource type="PackedScene" uid="uid://2qm4015ex1xq" path="res://models/block/grass.glb" id="1_3f88d"]
+[ext_resource type="Script" path="res://scripts/resource/structure.gd" id="2_8axk5"]
+
+[resource]
+script = ExtResource("2_8axk5")
+model = ExtResource("1_3f88d")
+price = 0
