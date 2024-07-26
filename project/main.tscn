@@ -341,7 +341,7 @@ script = SubResource("GDScript_57km2")
 structures = Array[Resource("res://scripts/resource/structure.gd")]([ExtResource("3_camxx")])
 selector = NodePath("Selector")
 view_camera = NodePath("../Viewer/Camera")
-cash_display = NodePath("../CanvasLayer/Cash")
+cash_display = NodePath("../CanvasLayer/HBoxContainer/MarginContainer/Cash")
 
 [node name="Sprite" type="Sprite3D" parent="Bulider"]
 transform = Transform3D(8, 0, 0, 0, -3.49691e-07, -8, 0, 8, -3.49691e-07, 0, 0, 0)
@@ -359,6 +359,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
 script = SubResource("GDScript_4hvwq")
 
 [node name="Camera" type="Camera3D" parent="Viewer"]
+size = 30.444
 
 [node name="RayCast" type="RayCast3D" parent="Viewer"]
 target_position = Vector3(0, 0, -10)
@@ -366,9 +367,104 @@ collide_with_areas = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Cash" type="Label" parent="CanvasLayer"]
-offset_left = 65.0
-offset_top = 41.0
-offset_right = 114.0
-offset_bottom = 78.0
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = -121.0
+offset_right = 7.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Cash" type="Label" parent="CanvasLayer/HBoxContainer/MarginContainer"]
+layout_mode = 2
 text = "123"
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/HBoxContainer/MarginContainer2"]
+layout_mode = 2
+
+[node name="Cash" type="Label" parent="CanvasLayer/HBoxContainer/MarginContainer2"]
+layout_mode = 2
+text = "123"
+
+[node name="MarginContainer3" type="MarginContainer" parent="CanvasLayer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/HBoxContainer/MarginContainer3"]
+layout_mode = 2
+
+[node name="Cash" type="Label" parent="CanvasLayer/HBoxContainer/MarginContainer3"]
+layout_mode = 2
+text = "123"
+
+[node name="TabContainer" type="TabContainer" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -322.0
+offset_bottom = -144.0
+grow_horizontal = 2
+grow_vertical = 0
+tab_alignment = 1
+all_tabs_in_front = true
+
+[node name="TabBar" type="TabBar" parent="CanvasLayer/TabContainer"]
+layout_mode = 2
+
+[node name="TabBar2" type="TabBar" parent="CanvasLayer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="TabBar3" type="TabBar" parent="CanvasLayer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="TabBar4" type="TabBar" parent="CanvasLayer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="TabBar5" type="TabBar" parent="CanvasLayer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer"]
+offset_left = 31.0
+offset_top = 28.0
+offset_right = 109.0
+offset_bottom = 111.0
+text = "i"
+
+[node name="Button2" type="Button" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -149.0
+offset_top = 33.0
+offset_right = -40.0
+offset_bottom = 128.0
+grow_horizontal = 0
+text = "设置"
+
+[node name="Button3" type="Button" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -263.0
+offset_top = 49.0
+offset_right = -191.0
+offset_bottom = 129.0
+grow_horizontal = 0
+text = "？"

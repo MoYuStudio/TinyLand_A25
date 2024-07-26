@@ -20,6 +20,11 @@ config/icon="res://icon_outline.svg"
 config/macos_native_icon="res://icon_outline.svg"
 config/windows_native_icon="res://icon_outline.ico"
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [editor_plugins]
 
 enabled=PackedStringArray()

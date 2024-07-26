@@ -6,4 +6,4 @@
 [resource]
 script = ExtResource("2_8axk5")
 model = ExtResource("1_3f88d")
-price = 0
+price = 10
