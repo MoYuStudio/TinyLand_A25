@@ -61,7 +61,7 @@ void fragment() {
 [resource]
 render_priority = 0
 shader = SubResource("Shader_t5u00")
-shader_parameter/out_color = Color(0, 0.768627, 1, 1)
+shader_parameter/out_color = Color(0, 0.768627, 1, 0.784314)
 shader_parameter/amount = 0.3
 shader_parameter/speed = 0.6
 shader_parameter/beer_factor = 0.0

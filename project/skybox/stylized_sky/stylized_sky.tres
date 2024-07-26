@@ -21,6 +21,7 @@ fog_light_energy = 1.24
 fog_density = 0.1129
 fog_height = 3.48
 fog_height_density = 0.0027
+volumetric_fog_enabled = true
 volumetric_fog_density = 0.03
 volumetric_fog_length = 16.0
 volumetric_fog_sky_affect = 0.36

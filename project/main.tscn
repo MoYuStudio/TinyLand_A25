@@ -19,6 +19,8 @@ extends Node3D
 
 # 导出变量：结构数组
 @export var structures: Array[Structure] = []
+# '光标'节点
+@export var selector:Node3D
 # 包含结构预览的节点
 @export var selector_container:Node3D
 # 用于鼠标射线投射的摄像机
@@ -62,8 +64,24 @@ func _ready():
 		for z in range(-border/2,border/2):
 			gridmap.set_cell_item(Vector3(x,-1,z),0,random_direction())
 
-func _process(delta):
-	pass
+#func _process(delta):
+	## 控制
+	#action_rotate() # 旋转选择
+	#action_structure_toggle() # 切换结构
+	#
+	##action_save() # 保存
+	##action_load() # 加载
+	#
+	## 根据鼠标位置确定地图位置
+	#var world_position = plane.intersects_ray(
+		#view_camera.project_ray_origin(get_viewport().get_mouse_position()),
+		#view_camera.project_ray_normal(get_viewport().get_mouse_position()))
+#
+	#var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
+	#selector.position = lerp(selector.position, gridmap_position, delta * 40)
+	#
+	#action_build(gridmap_position)
+	#action_demolish(gridmap_position)
 
 func random_direction():
 	var direction = randi_range(0,3)
@@ -89,10 +107,10 @@ func get_mesh(packed_scene):
 					var prop_value = scene_state.get_node_property_value(i, j)
 					
 					return prop_value.duplicate()
-	
+	#
 ## 建造（放置）一个结构
 #func action_build(gridmap_position):
-	#if Input.is_action_just_pressed(\"build\"):
+	#if Input.is_action_just_pressed(\"Build\"):
 		#
 		#var previous_tile = gridmap.get_cell_item(gridmap_position)
 		#gridmap.set_cell_item(gridmap_position, index, gridmap.get_orthogonal_index_from_basis(selector.basis))
@@ -103,9 +121,9 @@ func get_mesh(packed_scene):
 #
 ## 拆除（移除）一个结构
 #func action_demolish(gridmap_position):
-	#if Input.is_action_just_pressed(\"demolish\"):
+	#if Input.is_action_just_pressed(\"Demolish\"):
 		#gridmap.set_cell_item(gridmap_position, -1)
-#
+##
 ## 旋转 '光标' 90度
 #func action_rotate():
 	#if Input.is_action_just_pressed(\"rotate\"):
@@ -166,6 +184,21 @@ func get_mesh(packed_scene):
 			#gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
 			#
 		#update_cash()
+
+
+func _on_viewer_collision_point(collision_point_position):
+	var collision_point = gridmap.local_to_map(collision_point_position)
+	var is_buildable = true
+	print(collision_point)
+	#if get_cell_item(Vector3(collision_point.x, 0, collision_point.z)) != -1:
+		#if is_buildable == true:
+			#emit_signal('preview_block_position', map_to_local(Vector3(collision_point.x, 1, collision_point.z)), true)
+		#if Input.is_action_pressed('Left_Click'):
+			#if get_cell_item(Vector3(collision_point.x, 1, collision_point.z)) == -1:
+				#if block_to_build == 19:
+					#set_cell_item(Vector3(collision_point.x, 0, collision_point.z), block_to_build, random_direction())
+				#else:
+					#set_cell_item(Vector3(collision_point.x, 1, collision_point.z), block_to_build, random_direction())
 "
 
 [sub_resource type="GDScript" id="GDScript_4hvwq"]
@@ -194,18 +227,16 @@ var mouse_delta = Vector2() # 鼠标周期
 
 var collision_point_position
 
-var mouse_locked = true
-
 func _ready():
 	pass
 
 func _input(event):
-	if mouse_locked == true:
-		if event is InputEventMouseMotion:
-			mouse_delta = event.relative
-			_select_target(event.position)
-		if event is InputEventMouseButton or event is InputEventScreenTouch:
-			_select_target(event.position)
+	if event is InputEventMouseMotion:
+		mouse_delta = event.relative
+		_select_target(event.position)
+	if event is InputEventMouseButton or event is InputEventScreenTouch:
+		_select_target(event.position)
+
 
 func _select_target(click_position):
 	var origin = camera.project_ray_origin(click_position)
@@ -220,72 +251,70 @@ func _select_target(click_position):
 	if ray_cast.is_colliding():
 		var ray_cast_params = space_state.intersect_ray(params)
 		if ray_cast_params:
-			var collision_point_position = ray_cast_params['position']
+			var collision_point_position = ray_cast_params[\"position\"]
 			collision_point_position = Vector3(collision_point_position[0], 0, collision_point_position[2])
-			emit_signal('collision_point', collision_point_position)
+			emit_signal(\"collision_point\", collision_point_position)
 
 func _physics_process(delta):
 	# var camera_pos = position
 	
-	if mouse_locked == true:
-		var input_vector = Vector3()
-		
-		# 输入
-		if Input.is_action_pressed(\"View\"):
-			# 沿x轴旋转相机
-			rotation_degrees.x -= mouse_delta.y * view_sensitivity * delta
+	var input_vector = Vector3()
+	
+	# 输入
+	if Input.is_action_pressed(\"View\"):
+		# 沿x轴旋转相机
+		rotation_degrees.x -= mouse_delta.y * view_sensitivity * delta
 
-			# 夹紧相机x旋转轴
-			rotation_degrees.x = clamp(rotation_degrees.x, min_view_angle, max_view_angle)
+		# 夹紧相机x旋转轴
+		rotation_degrees.x = clamp(rotation_degrees.x, min_view_angle, max_view_angle)
 
-			# 沿 y 轴旋转玩家
-			rotation_degrees.y -= mouse_delta.x * view_sensitivity * delta
+		# 沿 y 轴旋转玩家
+		rotation_degrees.y -= mouse_delta.x * view_sensitivity * delta
 
-			# 重置 mouseDelta 向量
-			mouse_delta = Vector2()
-			
-			# 重置 x y z 速度
-			movement_vector.x = 0
-			movement_vector.y = 0
-			movement_vector.z = 0
-			
-		if Input.is_action_pressed(\"Front\"):
-			input_vector.z -= 1
-		if Input.is_action_pressed(\"Back\"):
-			input_vector.z += 1
-		if Input.is_action_pressed(\"Left\"):
-			input_vector.x -= 1
-		if Input.is_action_pressed(\"Right\"):
-			input_vector.x += 1
-		if Input.is_action_pressed(\"Up\"):
-			input_vector.y += 1
-		if Input.is_action_pressed(\"Down\"):
-			if position.y >= 2.9: # 地平线限位
-				input_vector.y -= 1
-		if Input.is_action_pressed('Ctrl'):
-			movement_speed = 0.9
-		else:
-			movement_speed = 0.3
+		# 重置 mouseDelta 向量
+		mouse_delta = Vector2()
 		
-		input_vector = input_vector.normalized()
+		# 重置 x y z 速度
+		movement_vector.x = 0
+		movement_vector.y = 0
+		movement_vector.z = 0
 		
-		# 获得前进和正确的方向
-		var forward = global_transform.basis.z
-		var right = global_transform.basis.x
-		
-		var relative_position = (forward * input_vector.z + right * input_vector.x)
-		
-		# 设置速度
-		movement_vector.x = relative_position.x * movement_speed
-		movement_vector.y = input_vector.y * movement_speed
-		movement_vector.z = relative_position.z * movement_speed
-		
-		position.x += movement_vector.x
-		position.y += movement_vector.y
-		position.z += movement_vector.z
-		
-	elif mouse_locked == false:
-		pass
+	if Input.is_action_pressed(\"Front\"):
+		input_vector.z -= 1
+	if Input.is_action_pressed(\"Back\"):
+		input_vector.z += 1
+	if Input.is_action_pressed(\"Left\"):
+		input_vector.x -= 1
+	if Input.is_action_pressed(\"Right\"):
+		input_vector.x += 1
+	if Input.is_action_pressed(\"Up\"):
+		input_vector.y += 1
+	if Input.is_action_pressed(\"Down\"):
+		if position.y >= 2.9: # 地平线限位
+			input_vector.y -= 1
+	if Input.is_action_pressed(\"Boost\"):
+		movement_speed = 0.9
+	else:
+		movement_speed = 0.3
+	
+	input_vector = input_vector.normalized()
+	
+	# 获得前进和正确的方向
+	var forward = global_transform.basis.z
+	var right = global_transform.basis.x
+	
+	var relative_position = (forward * input_vector.z + right * input_vector.x)
+	
+	# 设置速度
+	movement_vector.x = relative_position.x * movement_speed
+	movement_vector.y = input_vector.y * movement_speed
+	movement_vector.z = relative_position.z * movement_speed
+	
+	position.x += movement_vector.x
+	position.y += movement_vector.y
+	position.z += movement_vector.z
+	
+
 "
 
 [node name="Main" type="Node3D"]
@@ -309,9 +338,11 @@ shadow_enabled = true
 mesh = SubResource("PlaneMesh_87rfl")
 skeleton = NodePath("../..")
 
-[node name="Bulider" type="Node3D" parent="." node_paths=PackedStringArray("selector_container", "view_camera", "cash_display")]
+[node name="Bulider" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "cash_display")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 script = SubResource("GDScript_57km2")
 structures = Array[Resource("res://scripts/resource/structure.gd")]([ExtResource("3_camxx")])
+selector = NodePath("Selector")
 selector_container = NodePath("Selector")
 view_camera = NodePath("../Viewer/Camera")
 cash_display = NodePath("../CanvasLayer/Cash")
@@ -334,7 +365,7 @@ script = SubResource("GDScript_4hvwq")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
 
 [node name="RayCast" type="RayCast3D" parent="Viewer"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
+target_position = Vector3(0, 0, -10)
 collide_with_areas = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -345,3 +376,5 @@ offset_top = 41.0
 offset_right = 114.0
 offset_bottom = 78.0
 text = "123"
+
+[connection signal="collision_point" from="Viewer" to="Bulider" method="_on_viewer_collision_point"]
