@@ -22,7 +22,7 @@ extends Node3D
 # '光标'节点
 @export var selector:Node3D
 # 包含结构预览的节点
-@export var selector_container:Node3D
+#@export var selector_container:Node3D
 # 用于鼠标射线投射的摄像机
 @export var view_camera:Camera3D
 # 显示现金的标签
@@ -57,8 +57,8 @@ func _ready():
 	
 	gridmap.mesh_library = mesh_library
 	
-	#update_structure()
-	#update_cash()
+	update_structure()
+	update_cash()
 	
 	for x in range(-border/2,border/2):
 		for z in range(-border/2,border/2):
@@ -66,8 +66,8 @@ func _ready():
 
 func _process(delta):
 	# 控制
-	action_rotate() # 旋转选择
-	action_structure_toggle() # 切换结构
+	#action_rotate() # 旋转选择
+	#action_structure_toggle() # 切换结构
 	
 	#action_save() # 保存
 	#action_load() # 加载
@@ -82,14 +82,15 @@ func _process(delta):
 
 	if world_position != null:
 		var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
-		selector.position = lerp(selector.position, gridmap_position, delta * 40)
-	
 		action_build(gridmap_position)
 		action_demolish(gridmap_position)
-	
+		
+		gridmap_position = gridmap.map_to_local(gridmap.local_to_map(gridmap_position))
+		gridmap_position.y += 0.3
+		selector.position = lerp(selector.position, gridmap_position, delta * 40)
+		
 	else:
-		print(\"No intersection\")
-	
+		pass
 	
 
 func random_direction():
@@ -133,30 +134,30 @@ func action_demolish(gridmap_position):
 	if Input.is_action_just_pressed(\"Demolish\"):
 		gridmap.set_cell_item(gridmap_position, -1)
 #
-# 旋转 '光标' 90度
-func action_rotate():
-	if Input.is_action_just_pressed(\"rotate\"):
-		selector.rotate_y(deg_to_rad(90))
+## 旋转 '光标' 90度
+#func action_rotate():
+	#if Input.is_action_just_pressed(\"rotate\"):
+		#selector.rotate_y(deg_to_rad(90))
 
-# 切换要建造的结构
-func action_structure_toggle():
-	if Input.is_action_just_pressed(\"structure_next\"):
-		index = wrap(index + 1, 0, structures.size())
-	
-	if Input.is_action_just_pressed(\"structure_previous\"):
-		index = wrap(index - 1, 0, structures.size())
-
-	update_structure()
+## 切换要建造的结构
+#func action_structure_toggle():
+	#if Input.is_action_just_pressed(\"structure_next\"):
+		#index = wrap(index + 1, 0, structures.size())
+	#
+	#if Input.is_action_just_pressed(\"structure_previous\"):
+		#index = wrap(index - 1, 0, structures.size())
+#
+	#update_structure()
 
 # 更新 '光标' 中的结构视图
 func update_structure():
 	# 清除选择器中的上一个结构预览
-	for n in selector_container.get_children():
-		selector_container.remove_child(n)
+	for n in selector.get_children():
+		selector.remove_child(n)
 	
 	# 在选择器中创建新结构预览
 	var _model = structures[index].model.instantiate()
-	selector_container.add_child(_model)
+	selector.add_child(_model)
 	_model.position.y += 0.25
 	
 func update_cash():
@@ -322,23 +323,23 @@ environment = ExtResource("1_uogxm")
 
 [node name="SunLight" type="DirectionalLight3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0)
+visible = false
 light_energy = 0.6
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, -0.707107, 0.707107, 0, -0.707107, -0.707107, 0, 0, 0)
-light_energy = 0.3
+light_energy = 0.1
 shadow_enabled = true
 
 [node name="Sea" type="MeshInstance3D" parent="Environment"]
 mesh = SubResource("PlaneMesh_87rfl")
 skeleton = NodePath("../..")
 
-[node name="Bulider" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "cash_display")]
+[node name="Bulider" type="Node3D" parent="." node_paths=PackedStringArray("selector", "view_camera", "cash_display")]
 script = SubResource("GDScript_57km2")
 structures = Array[Resource("res://scripts/resource/structure.gd")]([ExtResource("3_camxx")])
 selector = NodePath("Selector")
-selector_container = NodePath("Selector")
 view_camera = NodePath("../Viewer/Camera")
 cash_display = NodePath("../CanvasLayer/Cash")
 
@@ -354,10 +355,10 @@ cell_size = Vector3(1, 1, 1)
 cell_octant_size = 16
 
 [node name="Viewer" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
 script = SubResource("GDScript_4hvwq")
 
 [node name="Camera" type="Camera3D" parent="Viewer"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
 
 [node name="RayCast" type="RayCast3D" parent="Viewer"]
 target_position = Vector3(0, 0, -10)
@@ -371,5 +372,3 @@ offset_top = 41.0
 offset_right = 114.0
 offset_bottom = 78.0
 text = "123"
-
-[connection signal="collision_point" from="Viewer" to="Bulider" method="_on_viewer_collision_point"]
