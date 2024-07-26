@@ -20,6 +20,10 @@ config/icon="res://icon_outline.svg"
 config/macos_native_icon="res://icon_outline.svg"
 config/windows_native_icon="res://icon_outline.ico"
 
+[editor_plugins]
+
+enabled=PackedStringArray()
+
 [importer_defaults]
 
 texture={

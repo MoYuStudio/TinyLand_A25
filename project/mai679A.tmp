@@ -335,6 +335,7 @@ mesh = SubResource("PlaneMesh_87rfl")
 skeleton = NodePath("../..")
 
 [node name="Bulider" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "cash_display")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 script = SubResource("GDScript_57km2")
 structures = Array[Resource("res://scripts/resource/structure.gd")]([ExtResource("3_camxx")])
 selector = NodePath("Selector")
